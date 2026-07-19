@@ -69,6 +69,24 @@ export function extractPlaces(rawPost: FacebookRawPost): FacebookPlace[] {
   return places;
 }
 
+export function extractEvents(rawPost: FacebookRawPost) {
+  const events = [];
+
+  if (!rawPost.attachments) return events;
+
+  rawPost.attachments.forEach(attachment => {
+    if (attachment.data) {
+      attachment.data.forEach(data => {
+        if (data.event) {
+          events.push(data.event);
+        }
+      });
+    }
+  });
+
+  return events;
+}
+
 export function isMemoryPost(rawPost: FacebookRawPost): boolean {
   return rawPost.title.includes('memory') || rawPost.title.toLowerCase().includes('memory');
 }
@@ -77,6 +95,7 @@ export function parsePost(rawPost: FacebookRawPost, index: number): ParsedPost {
   const text = extractPostText(rawPost);
   const images = extractImages(rawPost);
   const places = extractPlaces(rawPost);
+  const events = extractEvents(rawPost);
   const isMemory = isMemoryPost(rawPost);
 
   return {
@@ -87,6 +106,7 @@ export function parsePost(rawPost: FacebookRawPost, index: number): ParsedPost {
     timeAgo: getTimeAgo(rawPost.timestamp),
     images,
     places,
+    events,
     isMemory
   };
 }
@@ -99,7 +119,12 @@ export function parseFacebookData(rawData: FacebookRawPost[]): ParsedPost[] {
 }
 
 export function extractPhotos(posts: ParsedPost[]) {
-  const photos = [];
+  const photos: Array<{
+    id: string;
+    uri: string;
+    timestamp: number;
+    alt: string;
+  }> = [];
   let photoId = 0;
 
   posts.forEach(post => {
