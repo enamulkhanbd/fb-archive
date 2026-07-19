@@ -70,7 +70,7 @@ export function extractPlaces(rawPost: FacebookRawPost): FacebookPlace[] {
 }
 
 export function extractEvents(rawPost: FacebookRawPost) {
-  const events = [];
+  const events: any[] = [];
 
   if (!rawPost.attachments) return events;
 
